@@ -41,4 +41,32 @@ public class Poly{
 	public int getLength(){
 		return length;
 	}
+
+	public Poly sum(Poly obj){
+		int objLength = obj.getLength();
+		int [] objVariables = obj.getVariables();
+		int larger;
+		int smaller;
+		int[] largerVariables;
+		if (length > objLength){
+			largerVariables = variables;
+			larger = length;
+			smaller = objLength;
+		} else{
+			largerVariables = objVariables;
+			larger = objLength;
+			smaller = length;
+		}
+		int[] newVariables = new int[larger];
+		for(int i = 0; i<smaller; i++){
+			newVariables[i] = variables[i] + objVariables[i];
+		}
+		
+		if (larger != smaller){
+			for(int i = smaller; i<larger;i++){
+				newVariables[i] = largerVariables[i]; 
+			}
+	   	}
+		return new Poly(newVariables);
+	}
 }
