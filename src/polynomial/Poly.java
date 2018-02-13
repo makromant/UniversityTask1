@@ -85,17 +85,17 @@ public class Poly{
 			larger = objLength;
 			smaller = length;
 		}
-		int[] newVariables = new int[larger];
+		int[] resultVariables = new int[larger];
 		for(int i = 0; i < smaller; i++){
-			newVariables[i] = variables[i] - objVariables[i];
+			resultVariables[i] = variables[i] - objVariables[i];
 		}
 		
 		if (larger != smaller){
 			for(int i = smaller; i < larger;i++){
-				newVariables[i] = -largerVariables[i]; 
+				resultVariables[i] = -largerVariables[i]; 
 			}
 	   	}
-		return new Poly(newVariables);
+		return new Poly(resultVariables);
 	}
 
 	private Poly div(Poly obj, boolean which){
@@ -134,8 +134,18 @@ public class Poly{
 		return div(obj, true);
    	}
 
-	public Poly remainderOfDiv(Poly obj){
-		return div(obj, false);
+	public Poly remainder(Poly obj){
+		int[] remainder = div(obj, false).getVariables();
+		for (int i = remainder.length - 1; i >= 0; i--){
+			if (remainder[i] != 0){
+				int[] result = new int[i+1];
+				for (int j=0;j<=i;j++){
+					result[j] = remainder[j];
+				}
+				return new Poly(result);
+			}
+		}
+		return new Poly(remainder);
 	}
 
 	public Poly multiplication(Poly obj){
@@ -145,7 +155,7 @@ public class Poly{
 			int[] emptyArray = {0};
 			return new Poly(emptyArray);
 		}
-		int[] resultVariables = new int[length*objLength];
+		int[] resultVariables = new int[length + objLength - 1];
 		for(int x : resultVariables){
 			x = 0;
 		}
@@ -164,9 +174,9 @@ public class Poly{
 			larger = objLength;
 			smaller = length;
 		}
-		for(int i = 0; i<larger; i++){
-			for(int j = 0; j<smaller; j++){
-				resultVariables[i*j] += largerVariables[i] * smallerVariables[j];
+		for(int i = 1; i < larger + 1; i++){
+			for(int j = 1; j < smaller + 1; j++){
+				resultVariables[i + j - 2] += largerVariables[i - 1] * smallerVariables[j - 1];
 			}
 		}
 		return new Poly(resultVariables);
@@ -180,4 +190,9 @@ public class Poly{
 		return length;
 	}
 	
+	public static void printVariables(Poly obj){
+		for (int element : obj.getVariables()){
+			System.out.print(element + " ");
+		}
+	}
 }
