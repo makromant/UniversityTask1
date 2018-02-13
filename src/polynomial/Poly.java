@@ -9,11 +9,12 @@ public class Poly{
 		length = this.variables.length;
 	}
 	
-	private void zeroException(int[] objVariables, int objLength){
+	private boolean isZero(int[] objVariables, int objLength){
 		if (objLength == 0 || (objLength == 1 && objVariables[0] == 0)
 									  || length == 0 || (length == 1 && variables[0] == 0)){
-			throw new  ArithmeticException("");
-		} 
+			return true;
+		}
+		return false;
 	}
 	
 	//@Override
@@ -100,7 +101,9 @@ public class Poly{
 	private Poly div(Poly obj, boolean which){
 		int [] objVariables = obj.getVariables();
 		int objLength = obj.getLength();
-		zeroException(objVariables, objLength);
+		if(isZero(objVariables, objLength)){
+			throw new IllegalArgumentException("");
+		}
 		int[] divider;
 		int[] divisor;
 		if (length > objLength){
@@ -126,13 +129,47 @@ public class Poly{
 			return new Poly(remainder);
 		}
 	}
-
+	
 	public Poly division(Poly obj){
 		return div(obj, true);
    	}
 
 	public Poly remainderOfDiv(Poly obj){
 		return div(obj, false);
+	}
+
+	public Poly multiplication(Poly obj){
+		int objLength = obj.getLength();
+		int [] objVariables = obj.getVariables();
+		if (isZero(objVariables, objLength)){
+			int[] emptyArray = {0};
+			return new Poly(emptyArray);
+		}
+		int[] resultVariables = new int[length*objLength];
+		for(int x : resultVariables){
+			x = 0;
+		}
+		int larger;
+		int smaller;
+		int[] largerVariables;
+		int[] smallerVariables;
+		if (length > objLength){
+			largerVariables = variables;
+			smallerVariables = objVariables;
+			larger = length;
+			smaller = objLength;
+		} else{
+			largerVariables = objVariables;
+			smallerVariables = variables;
+			larger = objLength;
+			smaller = length;
+		}
+		for(int i = 0; i<larger; i++){
+			for(int j = 0; j<smaller; j++){
+				resultVariables[i*j] += largerVariables[i] * smallerVariables[j];
+			}
+		}
+		return new Poly(resultVariables);
 	}
 
 	public int[] getVariables(){
