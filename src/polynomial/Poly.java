@@ -22,6 +22,17 @@ public class Poly{
 		}
 		return false;
 	}
+
+	
+	public long value(int x){
+		int power = 0;
+		long polyValue = 0;
+		for (int element:variables){
+			polyValue += Math.pow(x, power)*element;
+			power++;
+		}
+		return polyValue;
+	}
 	
 	public int[] getVariables(){
 		return variables;
