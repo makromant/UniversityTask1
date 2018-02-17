@@ -1,9 +1,10 @@
-package polynomial;
+package src.polynomial;
 
 public class Poly{
 	private final int[] variables;
 	private final int length;
 
+   
 	Poly(int[] variables){
 		this.variables = variables;
 		length = this.variables.length;
