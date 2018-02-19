@@ -9,5 +9,5 @@ remainder(Poly obj) - remainder of dividing one polynomial into another __restul
 multiplication(Poly obj) - multiplication of one polynomial to another __result object of Poly__<br />
 getVariables() - returns variables __result int__<br />
 getLength() - returns length __result int__<br />
-printVariables(Poly object) - prints the coefficients of a polynomial __result none__
+
 
