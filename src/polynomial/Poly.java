@@ -2,17 +2,27 @@ package polynomial;
 
 public class Poly {
     private final int[] variables;
-    private final int length;
-
 
     public Poly(int[] variables) {
         this.variables = variables;
-        length = this.variables.length;
     }
 
-    private boolean isZero(int[] objVariables, int objLength) {
-        return objLength == 0 || (objLength == 1 && objVariables[0] == 0)
-                || length == 0 || (length == 1 && variables[0] == 0);
+    @Override
+    public final String toString() {
+        if (getLength() == 0 || getVariables() == null) {
+            return "";
+        }
+        StringBuilder result = new StringBuilder();
+        result.append(getVariables()[0] != 0 ? getVariables()[0] + " + " : "");
+        if (getLength() > 1) {
+            result.append(getVariables()[1] == 1 ? "x" : getVariables()[1] + "*x");
+            for (int i = 2; i < getLength(); i++)
+                if (getVariables()[i] != 0) {
+                    result.append(" + ");
+                    result.append(getVariables()[i] == 1 ? "x^" + i : getVariables()[i] + "*x^" + i);
+                }
+        }
+        return result.toString();
     }
 
     @Override
@@ -23,18 +33,21 @@ public class Poly {
         return 31 + result;
     }
 
-    //@Override
-    public boolean equals(Poly obj) {
-        int[] objVariables = obj.getVariables();
-        if (length == obj.getLength()) {
-            for (int i = 0; i < length; i++)
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || getClass() != obj.getClass() || !Poly.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+        Poly objCopy = (Poly) obj;
+        int[] objVariables = objCopy.getVariables();
+        if (getLength() == objCopy.getLength()) {
+            for (int i = 0; i < getLength(); i++)
                 if (variables[i] != objVariables[i])
                     return false;
             return true;
         }
         return false;
     }
-
 
     public long value(int x) {
         int power = 0;
@@ -47,78 +60,46 @@ public class Poly {
     }
 
     public Poly sum(Poly obj) {
-        int objLength = obj.getLength();
-        int[] objVariables = obj.getVariables();
         int larger;
         int smaller;
         int[] largerVariables;
-        if (length > objLength) {
-            largerVariables = variables;
-            larger = length;
-            smaller = objLength;
-        } else {
-            largerVariables = objVariables;
-            larger = objLength;
-            smaller = length;
-        }
+        largerVariables = getLength() > obj.getLength() ? variables : obj.getVariables();
+        larger = largerVariables.length;
+        smaller = obj.getLength() == larger ? getLength() : obj.getLength();
         int[] newVariables = new int[larger];
         for (int i = 0; i < smaller; i++)
-            newVariables[i] = variables[i] + objVariables[i];
+            newVariables[i] = variables[i] + obj.getVariables()[i];
         if (larger != smaller)
             System.arraycopy(largerVariables, smaller, newVariables, smaller, larger - smaller);
-        return new Poly(newVariables);
+        return removeZeros(newVariables);
     }
 
     public Poly subtraction(Poly obj) {
-        int objLength = obj.getLength();
-        int[] objVariables = obj.getVariables();
         int larger;
         int smaller;
         int[] largerVariables;
-        if (length > objLength) {
-            largerVariables = variables;
-            larger = length;
-            smaller = objLength;
-        } else {
-            largerVariables = objVariables;
-            larger = objLength;
-            smaller = length;
-        }
+        largerVariables = getLength() > obj.getLength() ? variables : obj.getVariables();
+        larger = largerVariables.length;
+        smaller = obj.getLength() == larger ? getLength() : obj.getLength();
         int[] resultVariables = new int[larger];
         for (int i = 0; i < smaller; i++)
-            resultVariables[i] = variables[i] - objVariables[i];
+            resultVariables[i] = variables[i] - obj.getVariables()[i];
         if (larger != smaller)
             System.arraycopy(largerVariables, smaller, resultVariables, smaller, larger - smaller);
-        return new Poly(resultVariables);
+        return removeZeros(resultVariables);
     }
 
-    private Poly div(Poly obj, boolean which) {
-        int[] objVariables = obj.getVariables();
-        int objLength = obj.getLength();
-//        if (isZero(objVariables, objLength)) {
-//            throw new IllegalArgumentException("");
-//        }
-        int[] divider;
-        int[] divisor;
-        if (length > objLength) {
-            divider = variables;
-            divisor = objVariables;
-        } else {
-            divider = objVariables;
-            divisor = variables;
-        }
-        int[] remainder = divider;
+    private Poly div(Poly obj, boolean which) { // Auxiliary method used to return a division or rem from dividing one polynomial to another
+        int[] divider = getLength() > obj.getLength() ? variables : obj.getVariables();
+        int[] divisor = getLength() > obj.getLength() ? obj.getVariables() : variables;
         int[] quotient = new int[divider.length - divisor.length + 1];
         for (int i = 0; i < quotient.length; i++) {
-            int coefficient = remainder[remainder.length - i - 1] / divisor[divisor.length - 1];
+            int coefficient = divider[divider.length - i - 1] / divisor[divisor.length - 1];
             quotient[quotient.length - i - 1] = coefficient;
             for (int j = 0; j < divisor.length; j++)
-                remainder[remainder.length - i - j - 1] -= coefficient * divisor[divisor.length - j - 1];
+                divider[divider.length - i - j - 1] -= coefficient * divisor[divisor.length - j - 1];
         }
-        if (which)
-            return new Poly(quotient);
-        else
-            return new Poly(remainder);
+        return which ? removeZeros(quotient) : removeZeros(divider);
     }
 
     public Poly division(Poly obj) {
@@ -126,40 +107,21 @@ public class Poly {
     }
 
     public Poly remainder(Poly obj) {
-        int[] remainder = div(obj, false).getVariables();
-        for (int i = remainder.length - 1; i >= 0; i--) {
-            if (remainder[i] != 0) {
-                int[] result = new int[i + 1];
-                System.arraycopy(remainder, 0, result, 0, i + 1);
-                return new Poly(result);
-            }
-        }
-        return new Poly(remainder);
+        return div(obj, false);
     }
 
     public Poly multiplication(Poly obj) {
         int objLength = obj.getLength();
         int[] objVariables = obj.getVariables();
-        if (isZero(objVariables, objLength)) {
-            int[] emptyArray = {0};
-            return new Poly(emptyArray);
-        }
-        int[] resultVariables = new int[length + objLength - 1];
+        int[] resultVariables = new int[getLength() + objLength - 1];
         int larger;
         int smaller;
         int[] largerVariables;
         int[] smallerVariables;
-        if (length > objLength) {
-            largerVariables = variables;
-            smallerVariables = objVariables;
-            larger = length;
-            smaller = objLength;
-        } else {
-            largerVariables = objVariables;
-            smallerVariables = variables;
-            larger = objLength;
-            smaller = length;
-        }
+        largerVariables = getLength() > obj.getLength() ? variables : obj.getVariables();
+        smallerVariables = getLength() > obj.getLength() ? obj.getVariables() : variables;
+        larger = largerVariables.length;
+        smaller = obj.getLength() == larger ? getLength() : obj.getLength();
         for (int i = 1; i < larger + 1; i++)
             for (int j = 1; j < smaller + 1; j++)
                 resultVariables[i + j - 2] += largerVariables[i - 1] * smallerVariables[j - 1];
@@ -168,12 +130,26 @@ public class Poly {
         return new Poly(resultVariables);
     }
 
+    private Poly removeZeros(int[] variables) {
+        if (variables[variables.length - 1] == 0) {
+            for (int i = variables.length - 1; i >= 0; i--) { // Cycle removes a number of zeros from an array of values
+                if (variables[i] != 0) {
+                    int[] result = new int[i + 1];
+                    System.arraycopy(variables, 0, result, 0, i + 1);
+                    return new Poly(result);
+                }
+            }
+        } else {
+            return new Poly(variables);
+        }
+        return new Poly(new int[]{});
+    }
+
     public int[] getVariables() {
         return this.variables;
     }
 
     public int getLength() {
-        return this.length;
+        return this.variables.length;
     }
-
 }
