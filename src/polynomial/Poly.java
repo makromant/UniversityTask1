@@ -89,7 +89,8 @@ public class Poly {
         return removeZeros(resultVariables);
     }
 
-    private Poly div(Poly obj, boolean which) { // Auxiliary method used to return a division or rem from dividing one polynomial to another
+    private Poly div(Poly obj, boolean which) { // Auxiliary method used to return a division or rem from dividing one
+                                                // polynomial to another
         int[] divider = getLength() > obj.getLength() ? variables : obj.getVariables();
         int[] divisor = getLength() > obj.getLength() ? obj.getVariables() : variables;
         int[] quotient = new int[divider.length - divisor.length + 1];
@@ -118,14 +119,13 @@ public class Poly {
         int smaller;
         int[] largerVariables;
         int[] smallerVariables;
-        largerVariables = getLength() > obj.getLength() ? variables : obj.getVariables();
-        smallerVariables = getLength() > obj.getLength() ? obj.getVariables() : variables;
+        largerVariables = getLength() > objLength ? variables : objVariables;
+        smallerVariables = getLength() > objLength ? objVariables : variables;
         larger = largerVariables.length;
-        smaller = obj.getLength() == larger ? getLength() : obj.getLength();
+        smaller = objLength == larger ? getLength() : objLength;
         for (int i = 1; i < larger + 1; i++)
             for (int j = 1; j < smaller + 1; j++)
                 resultVariables[i + j - 2] += largerVariables[i - 1] * smallerVariables[j - 1];
-
 
         return new Poly(resultVariables);
     }
@@ -142,7 +142,7 @@ public class Poly {
         } else {
             return new Poly(variables);
         }
-        return new Poly(new int[]{});
+        return new Poly(new int[] {});
     }
 
     public int[] getVariables() {
