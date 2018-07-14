@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <build>
-        <directory>out/product/polynomial</directory>
+        <directory>target</directory>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
 
